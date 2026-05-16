@@ -19,21 +19,45 @@ embed_model = load_model()
 @st.cache_resource
 def create_index():
 
-    pdf_path = "pdfs/sample.pdf"
+   import os
 
-    doc = fitz.open(pdf_path)
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=500,
+    chunk_overlap=100
+)
 
-    text = ""
+all_chunks = []
 
-    for page in doc:
-        text += page.get_text()
+all_metadata = []
 
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=100
-    )
+pdf_folder = "pdfs"
 
-    chunks = splitter.split_text(text)
+for file in os.listdir(pdf_folder):
+
+    if file.endswith(".pdf"):
+
+        pdf_path = os.path.join(pdf_folder, file)
+
+        doc = fitz.open(pdf_path)
+
+        text = ""
+
+        for page_num, page in enumerate(doc):
+
+            page_text = page.get_text()
+
+            chunks = splitter.split_text(page_text)
+
+            for chunk in chunks:
+
+                all_chunks.append(chunk)
+
+                all_metadata.append(
+                    {
+                        "source": file,
+                        "page": page_num + 1
+                    }
+                )
 
     embeddings = embed_model.encode(
         chunks,
