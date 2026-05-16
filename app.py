@@ -60,7 +60,7 @@ for file in os.listdir(pdf_folder):
                 )
 
     embeddings = embed_model.encode(
-        chunks,
+        all_chunks,
         batch_size=8
     )
 
@@ -98,7 +98,7 @@ if query:
     retrieved_chunks = []
 
     for i in indices[0]:
-        retrieved_chunks.append(chunks[i])
+        retrieved_chunks.append(all_chunks[i])
 
     context = "\n".join(retrieved_chunks)
 
